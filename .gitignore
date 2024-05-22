@@ -1,0 +1,10 @@
+envs/
+envs2/
+envs3/
+lecture_notes/
+.ssh/
+.env
+.vscode
+files
+.cache
+.streamlit
