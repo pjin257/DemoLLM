@@ -29,17 +29,18 @@ st.set_page_config(
 st.title("규정 검색 (Model: Private sLLM)")
 
 def get_model_name(model_choice):
-    if model_choice == "meta-llama3-8b":
-        model_name = "llama3:8b"
-    elif model_choice == "falcon2-11b":
-        model_name = "falcon2:11b"
+    if model_choice == "deepmind-gemma-7b":
+        model_name = "gemma:latest"
+    elif model_choice == "cohere-aya-8b":
+        model_name = "aya:latest"
     else: model_name = None
     return model_name
 
 with st.sidebar:
     model_choice = st.selectbox(
             label="사용할 sLLM 모델을 선택하세요.",
-            options=["meta-llama3-8b", "falcon2-11b"],
+            # aya:latest, gemma:latest
+            options=["deepmind-gemma-7b", "cohere-aya-8b"],
             index=None,
             placeholder="모델을 선택하세요...",
         )
