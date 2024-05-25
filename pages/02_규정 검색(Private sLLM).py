@@ -30,9 +30,9 @@ st.title("규정 검색 (Model: Private sLLM)")
 
 def get_model_name(model_choice):
     if model_choice == "meta-llama3-8b":
-        model_name = "llama3:instruct"
+        model_name = "llama3:8b"
     elif model_choice == "falcon2-11b":
-        model_name = "falcon2:latest"
+        model_name = "falcon2:11b"
     else: model_name = None
     return model_name
 
@@ -132,11 +132,6 @@ def embed_file():
 
     docs = load_docs_from_jsonl(docs_path)
 
-    st.write(docs)
-    st.write(len(docs))
-    st.write(type(list(docs)))
-    st.write(type(docs))
-
     embeddings = OllamaEmbeddings(
         model=st.session_state["model"]
     )
@@ -179,7 +174,6 @@ prompt = ChatPromptTemplate.from_messages([
 ])
 
 retriever = embed_file()
-st.text("embedding finished")
 
 send_message("저는 「국방정보화업무 훈령」 검색 챗봇입니다. 무엇이든 물어보세요!", "ai", save=False)
 paint_history()
