@@ -29,18 +29,17 @@ st.set_page_config(
 st.title("규정 검색 (Model: Private sLLM)")
 
 def get_model_name(model_choice):
-    if model_choice == "deepmind-gemma-7b":
-        model_name = "gemma:latest"
-    elif model_choice == "cohere-aya-8b":
-        model_name = "aya:latest"
+    if model_choice == "kor-univ-kullm3-10.7b":
+        model_name = "kullm3:latest"
+    elif model_choice == "yanolja-eeve-10.8b":
+        model_name = "eeve:latest"
     else: model_name = None
     return model_name
 
 with st.sidebar:
     model_choice = st.selectbox(
             label="사용할 sLLM 모델을 선택하세요.",
-            # aya:latest, gemma:latest
-            options=["deepmind-gemma-7b", "cohere-aya-8b"],
+            options=["kor-univ-kullm3-10.7b", "yanolja-eeve-10.8b"],
             index=None,
             placeholder="모델을 선택하세요...",
         )
@@ -53,7 +52,7 @@ if st.session_state["model"] is None:
 else:
     st.caption("＊채팅 기록을 삭제하려면 새로고침을 해주세요.")
 
-st.text(st.session_state["model"])
+st.text("사용중인 sLLM: ", st.session_state["model"])
 
 
 class ChatCallbackHandler(BaseCallbackHandler):
@@ -103,25 +102,23 @@ def embed_file():
     
     cache_dir = LocalFileStore(f"./.cache/{model_choice}_embeddings/{file_name}")
 
-    """
-    splitter = CharacterTextSplitter.from_tiktoken_encoder(
-        separator="\n",
-        chunk_size=600,
-        chunk_overlap=100,
-    )
+    # splitter = CharacterTextSplitter.from_tiktoken_encoder(
+    #     separator="\n",
+    #     chunk_size=600,
+    #     chunk_overlap=100,
+    # )
 
-    loader = UnstructuredFileLoader(file_path)
-    docs = loader.load_and_split(text_splitter=splitter)
+    # loader = UnstructuredFileLoader(file_path)
+    # docs = loader.load_and_split(text_splitter=splitter)
 
-    def save_docs_to_jsonl(array:Iterable[Document], docs_path:str)->None:
-        os.makedirs(os.path.dirname(docs_path), exist_ok=True)
-        with open(docs_path, 'w') as jsonl_file:
-            for doc in array:
-                jsonl_file.write(doc.json() + '\n')
+    # def save_docs_to_jsonl(array:Iterable[Document], docs_path:str)->None:
+    #     os.makedirs(os.path.dirname(docs_path), exist_ok=True)
+    #     with open(docs_path, 'w') as jsonl_file:
+    #         for doc in array:
+    #             jsonl_file.write(doc.json() + '\n')
 
-    save_docs_to_jsonl(docs, docs_path)
+    # save_docs_to_jsonl(docs, docs_path)
     
-    """
     def load_docs_from_jsonl(docs_path)->Iterable[Document]:
         array = []
         with open(docs_path, 'r') as jsonl_file:
@@ -162,11 +159,13 @@ def format_docs(docs):
 prompt = ChatPromptTemplate.from_messages([
     ("system", 
     """
-    Answer the question using ONLY the following context. If you don't know the answer just say you don't know. DON'T make anything up.
+    Answer the question using ONLY the provided context. 
+    Answer in Korean ONLY.
+    If you don't know the answer, just say you don't know. DON'T make anything up.
 
     Context: {context}
     -----
-    And you will get summaried context of chat history. If it's empty you don't have to care 
+    And you will get a summarized context of the chat history. If it's empty, you don't have to care.
     
     Chat history: {chat_history}
     """

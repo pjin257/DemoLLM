@@ -103,7 +103,9 @@ def embed_file():
     
     docs = load_docs_from_jsonl(docs_path)
 
-    embeddings = OpenAIEmbeddings()
+    embeddings = OpenAIEmbeddings(
+        model="text-embedding-3-small"
+    )
     cached_embeddings = CacheBackedEmbeddings.from_bytes_store(embeddings, cache_dir)
 
     vectorstore = FAISS.from_documents(docs, cached_embeddings)
@@ -130,11 +132,13 @@ def format_docs(docs):
 prompt = ChatPromptTemplate.from_messages([
     ("system", 
     """
-    Answer the question using ONLY the following context. If you don't know the answer just say you don't know. DON'T make anything up.
+    Answer the question using ONLY the provided context. 
+    Answer in Korean ONLY.
+    If you don't know the answer, just say you don't know. DON'T make anything up.
 
     Context: {context}
     -----
-    And you will get summaried context of chat history. If it's empty you don't have to care 
+    And you will get a summarized context of the chat history. If it's empty, you don't have to care.
     
     Chat history: {chat_history}
     """
