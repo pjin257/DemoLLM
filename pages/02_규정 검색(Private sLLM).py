@@ -84,11 +84,11 @@ memory_llm = ChatOllama(
     temperature=0.1,
 )
 
-if "messages" not in st.session_state:
-    st.session_state["messages"] = []
+if "private_messages" not in st.session_state:
+    st.session_state["private_messages"] = []
 
-if "memory" not in st.session_state:
-    st.session_state["memory"] = ConversationSummaryBufferMemory(
+if "private_memory" not in st.session_state:
+    st.session_state["private_memory"] = ConversationSummaryBufferMemory(
         llm=memory_llm,
         max_token_limit=200,
         memory_key="chat_history",
@@ -144,16 +144,16 @@ def embed_file():
     return retriever
 
 def save_message(message, role):
-    st.session_state["messages"].append({"message":message, "role":role})
+    st.session_state["private_messages"].append({"message":message, "role":role})
 
 def send_message(message, role, save=True):
     with st.chat_message(role):
         st.markdown(message)
     if save:
-        st.session_state["messages"].append({"message":message, "role":role})
+        st.session_state["private_messages"].append({"message":message, "role":role})
 
 def paint_history():
-    for message in st.session_state["messages"]:
+    for message in st.session_state["private_messages"]:
         send_message(message["message"], message["role"], save=False,)
 
 def format_docs(docs):
@@ -191,17 +191,16 @@ try:
         "question": RunnablePassthrough(),
     } | RunnablePassthrough.assign(
         chat_history=RunnableLambda(
-            st.session_state["memory"].load_memory_variables
+            st.session_state["private_memory"].load_memory_variables
             ) | itemgetter("chat_history")
         ) | prompt | llm
 
     with st.chat_message("ai"):
         response = chain.invoke(message)
-        st.session_state["memory"].save_context(
+        st.session_state["private_memory"].save_context(
             {"input": message}, 
             {"output": response.content},
         )
-    st.text("code finished")
 except:
   # Prevent the error from propagating into your Streamlit app.
   pass
