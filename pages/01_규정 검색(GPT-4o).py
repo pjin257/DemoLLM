@@ -60,7 +60,7 @@ if "messages" not in st.session_state:
 if "memory" not in st.session_state:
     st.session_state["memory"] = ConversationSummaryBufferMemory(
         llm=memory_llm,
-        max_token_limit=200,
+        max_token_limit=100,
         memory_key="chat_history",
         return_messages=True,
     )
