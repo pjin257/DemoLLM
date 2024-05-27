@@ -52,9 +52,6 @@ if st.session_state["model"] is None:
 else:
     st.caption("＊채팅 기록을 삭제하려면 새로고침을 해주세요.")
 
-st.text("사용중인 sLLM: ", st.session_state["model"])
-
-
 class ChatCallbackHandler(BaseCallbackHandler):
 
     message = ""
@@ -138,6 +135,8 @@ def embed_file():
     vectorstore = FAISS.from_documents(docs, cached_embeddings)
     retriever = vectorstore.as_retriever()
 
+    #STUFF IS TOO LONG FOR SLLMS
+
     return retriever
 
 def save_message(message, role):
@@ -153,8 +152,48 @@ def paint_history():
     for message in st.session_state["private_messages"]:
         send_message(message["message"], message["role"], save=False,)
 
-def format_docs(docs):
-    return "\n\n".join(document.page_content for document in docs)
+# def format_docs(docs):
+#     return "\n\n".join(document.page_content for document in docs)
+
+retriever = embed_file()
+
+send_message("저는 「국방정보화업무 훈령」 검색 챗봇입니다. 무엇이든 물어보세요!", "ai", save=False)
+paint_history()
+
+
+message = st.chat_input("질문을 입력하세요...")
+
+map_doc_prompt = ChatPromptTemplate.from_messages(
+    [
+        (
+            "system",
+            """
+            Use the following portion of a long document to see if any of the text is relevant to answer the question. Return any relevant text verbatim. If there is no relevant text, return : ''
+            -------
+            {context}
+            """
+        ),
+        ("human", "{question}"),
+    ]
+)
+
+map_doc_chain = map_doc_prompt | llm
+
+# Apply MapReduce to the retrieved documents
+def map_docs(inputs):
+    documents = inputs["documents"]
+    question = inputs["question"]
+    return "\n\n".joint(
+        map_doc_chain.invoke(
+            {"context": doc.page_content, "question": question}
+        ).content
+        for doc in documents
+    )
+
+map_chain = {
+    "documents": retriever,
+    "question": RunnablePassthrough(),
+} | RunnableLambda(map_docs)
 
 prompt = ChatPromptTemplate.from_messages([
     ("system", 
@@ -173,20 +212,12 @@ prompt = ChatPromptTemplate.from_messages([
     ("human", "{question}")
 ])
 
-retriever = embed_file()
-
-send_message("저는 「국방정보화업무 훈령」 검색 챗봇입니다. 무엇이든 물어보세요!", "ai", save=False)
-paint_history()
-
-
-message = st.chat_input("질문을 입력하세요...")
-
 try:
   if message:
     send_message(message, "human")
 
     chain = {
-        "context": retriever | RunnableLambda(format_docs),
+        "context": map_chain,
         "question": RunnablePassthrough(),
     } | RunnablePassthrough.assign(
         chat_history=RunnableLambda(

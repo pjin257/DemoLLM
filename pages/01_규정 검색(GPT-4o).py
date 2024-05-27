@@ -73,25 +73,23 @@ def embed_file():
 
     cache_dir = LocalFileStore(f"./.cache/embeddings/{file_name}")
 
-    """
-    splitter = CharacterTextSplitter.from_tiktoken_encoder(
-        separator="\n",
-        chunk_size=600,
-        chunk_overlap=100,
-    )
+    # splitter = CharacterTextSplitter.from_tiktoken_encoder(
+    #     separator="\n",
+    #     chunk_size=600,
+    #     chunk_overlap=100,
+    # )
 
-    loader = UnstructuredFileLoader(file_path)
-    docs = loader.load_and_split(text_splitter=splitter)
+    # loader = UnstructuredFileLoader(file_path)
+    # docs = loader.load_and_split(text_splitter=splitter)
 
-    def save_docs_to_jsonl(array:Iterable[Document], docs_path:str)->None:
-        os.makedirs(os.path.dirname(docs_path), exist_ok=True)
-        with open(docs_path, 'w') as jsonl_file:
-            for doc in array:
-                jsonl_file.write(doc.json() + '\n')
+    # def save_docs_to_jsonl(array:Iterable[Document], docs_path:str)->None:
+    #     os.makedirs(os.path.dirname(docs_path), exist_ok=True)
+    #     with open(docs_path, 'w') as jsonl_file:
+    #         for doc in array:
+    #             jsonl_file.write(doc.json() + '\n')
 
-    save_docs_to_jsonl(docs, docs_path)
+    # save_docs_to_jsonl(docs, docs_path)
 
-    """
     def load_docs_from_jsonl(docs_path)->Iterable[Document]:
         array = []
         with open(docs_path, 'r') as jsonl_file:
