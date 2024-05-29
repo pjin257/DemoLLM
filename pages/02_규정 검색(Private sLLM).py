@@ -80,6 +80,11 @@ memory_llm = ChatOllama(
     temperature=0.1,
 )
 
+embedding_llm = ChatOllama(
+    model=st.session_state["model"],
+    temperature=0.1,
+)
+
 if "private_messages" not in st.session_state:
     st.session_state["private_messages"] = []
 
@@ -135,8 +140,6 @@ def embed_file():
     vectorstore = FAISS.from_documents(docs, cached_embeddings)
     retriever = vectorstore.as_retriever()
 
-    #STUFF IS TOO LONG FOR SLLMS
-
     return retriever
 
 def save_message(message, role):
@@ -177,13 +180,13 @@ map_doc_prompt = ChatPromptTemplate.from_messages(
     ]
 )
 
-map_doc_chain = map_doc_prompt | llm
+map_doc_chain = map_doc_prompt | embedding_llm
 
 # Apply MapReduce to the retrieved documents
 def map_docs(inputs):
     documents = inputs["documents"]
     question = inputs["question"]
-    return "\n\n".joint(
+    return "\n\n".join(
         map_doc_chain.invoke(
             {"context": doc.page_content, "question": question}
         ).content
