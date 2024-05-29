@@ -73,6 +73,7 @@ llm = ChatOllama(
     callbacks=[
         ChatCallbackHandler(),
     ],
+    num_ctx=4096,
 )
 
 memory_llm = ChatOllama(
