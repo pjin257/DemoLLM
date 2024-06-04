@@ -1,11 +1,12 @@
 from operator import itemgetter
 import os
 
-from langchain.chat_models import ChatOpenAI
-from langchain.document_loaders import UnstructuredFileLoader
+from langchain_openai import ChatOpenAI
+from langchain_community.document_loaders import UnstructuredFileLoader
 from langchain.text_splitter import CharacterTextSplitter
-from langchain.embeddings import OpenAIEmbeddings, CacheBackedEmbeddings
-from langchain.vectorstores import FAISS
+from langchain_community.embeddings import OpenAIEmbeddings
+from langchain.embeddings import CacheBackedEmbeddings
+from langchain_community.vectorstores import FAISS
 from langchain.storage import LocalFileStore
 from langchain.prompts import ChatPromptTemplate
 from langchain.schema.runnable import RunnablePassthrough, RunnableLambda
